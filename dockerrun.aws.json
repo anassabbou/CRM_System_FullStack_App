@@ -1,0 +1,24 @@
+{
+        "AWSEBDockerrunVersion": 2,
+        "containerDefinitions": [
+          {
+            "name": "crm-api",
+            "image": "abbou1/abbou-hub-api",
+            "essential": true,
+            "memory": 128,
+            "portMappings": [
+              {
+                "hostPort": 80,
+                "containerPort": 80
+              }
+            ],
+            "environment": [
+                {
+                        "name": "SPRING_DATASOURCE_URL",
+                        "value": "jdbc:postgresql://TODO:5432/customer"
+                        }
+                ]
+            
+          }
+        ]
+      }
