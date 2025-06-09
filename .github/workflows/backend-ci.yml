@@ -1,0 +1,38 @@
+name: CI - Build Backend
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - backend/**
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: anassabbou
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: customer
+        ports:
+          - 5332:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: ./backend
+    steps: # github.com/marketplace
+      - uses: actions/checkout@v4
+        name: Clone Repo to Github Action
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+      - name: Build and run Unit/integration Testes with maven
+        run: mvn -ntp -B verify # Download all debps & plugins
