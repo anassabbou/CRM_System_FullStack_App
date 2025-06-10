@@ -5,6 +5,8 @@ import com.example.springbootprojet.customer.CustomerRegistrationRequest;
 import com.example.springbootprojet.customer.CustomerUpdateRequest;
 import com.example.springbootprojet.customer.Gender;
 import com.github.javafaker.Faker;
+import com.github.javafaker.Name;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,16 +27,20 @@ public class CustomerIntegrationTest {
     @Autowired
     private WebTestClient webTestClient;
 
-    //      @Autowired
-    //      private CustomerController // don't do this
+
+    private static final Random RANDOM = new Random();
+    private static final String CUSTOMER_URI = "/api/v1/customers";
 
     @Test
     void canRegisterACustomer() {
     // create registration request
         Faker FAKER= new Faker();
-        int age=new Random().nextInt(18,40);
-        String name=FAKER.name().fullName();
-        String email=FAKER.name().lastName() + UUID.randomUUID() + "@gmail.com";
+        Name fakerName=FAKER.name();
+
+        String name=fakerName.fullName();
+        String email=fakerName.lastName() + UUID.randomUUID() + "@email.com";
+        int age= new Random().nextInt(18,40);
+
         Gender gender= age % 2 == 0 ? Gender.MALE : Gender.FEMALE;
 
         CustomerRegistrationRequest request= new CustomerRegistrationRequest(
@@ -44,7 +50,7 @@ public class CustomerIntegrationTest {
                 gender
         );
     // send a post request
-        webTestClient.post().uri("api/v1/customers")
+        webTestClient.post().uri(CUSTOMER_URI)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(request), CustomerRegistrationRequest.class)
@@ -52,22 +58,23 @@ public class CustomerIntegrationTest {
                 .expectStatus()
                 .isOk();
         // get all customers
-            List<Customer> allCustomers=webTestClient.get().uri("api/v1/customers").accept(MediaType.APPLICATION_JSON).exchange().expectStatus().isOk()
+            List<Customer> allCustomers=webTestClient.get().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON).exchange().expectStatus().isOk()
                     .expectBodyList(new ParameterizedTypeReference<Customer>() {})
                     .returnResult()
                     .getResponseBody();
 
         // make sure that customer is present
-            Customer expectedCustomer= new Customer(name,email,age, Gender.MALE);
+            Customer expectedCustomer= new Customer(name,email,age, gender);
             assertThat(allCustomers)
                     .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")
                     .contains(expectedCustomer);
         // get customer by id
+        Assertions.assertNotNull(allCustomers);
         int id= allCustomers.stream()
                 .filter(customer -> customer.getEmail().equals(email))
                 .map(Customer::getId).findFirst().orElseThrow();
         expectedCustomer.setId(id);
-        webTestClient.get().uri("api/v1/customers"+"/{id}", id).accept(MediaType.APPLICATION_JSON).exchange().expectStatus().isOk()
+        webTestClient.get().uri(CUSTOMER_URI+"/{id}", id).accept(MediaType.APPLICATION_JSON).exchange().expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<Customer>() {})
                 .isEqualTo(expectedCustomer);
 
@@ -80,10 +87,10 @@ public class CustomerIntegrationTest {
             int age=new Random().nextInt(18,40);
             String name=FAKER.name().fullName();
             String email=FAKER.name().lastName() + UUID.randomUUID() + "@gmail.com";
-            Gender gender= age % 2 == 0 ? Gender.MALE : Gender.FEMALE;
+        Gender gender= age % 2 == 0 ? Gender.MALE : Gender.FEMALE;
             CustomerRegistrationRequest request= new CustomerRegistrationRequest(name, email, age, gender);
         // send a post request
-            webTestClient.post().uri("api/v1/customers")
+            webTestClient.post().uri(CUSTOMER_URI)
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(Mono.just(request), CustomerRegistrationRequest.class)
@@ -91,7 +98,7 @@ public class CustomerIntegrationTest {
                     .expectStatus()
                     .isOk();
         // get all customers
-            List<Customer> allCustomers=webTestClient.get().uri("api/v1/customers").accept(MediaType.APPLICATION_JSON)
+            List<Customer> allCustomers=webTestClient.get().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
                     .exchange().expectStatus().isOk()
                     .expectBodyList(new ParameterizedTypeReference<Customer>() {})
                     .returnResult()
@@ -102,13 +109,13 @@ public class CustomerIntegrationTest {
                 .map(Customer::getId).findFirst().orElseThrow();
         // delete customer
 
-        webTestClient.delete().uri("api/v1/customers/{id}",id).accept(MediaType.APPLICATION_JSON).exchange()
+        webTestClient.delete().uri(CUSTOMER_URI+"/{id}",id).accept(MediaType.APPLICATION_JSON).exchange()
                 .expectStatus().isOk();
 
         // get customer by id
 
 
-        webTestClient.get().uri("api/v1/customers"+"/{id}", id).accept(MediaType.APPLICATION_JSON)
+        webTestClient.get().uri(CUSTOMER_URI+"/{id}", id).accept(MediaType.APPLICATION_JSON)
                 .exchange().expectStatus()
                 .isNotFound();
     }
@@ -128,7 +135,7 @@ public class CustomerIntegrationTest {
                     gender
             );
         // send a post request
-            webTestClient.post().uri("api/v1/customers")
+            webTestClient.post().uri(CUSTOMER_URI)
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(Mono.just(request), CustomerRegistrationRequest.class)
@@ -136,13 +143,14 @@ public class CustomerIntegrationTest {
                     .expectStatus()
                     .isOk();
         // get all customers
-            List<Customer> allCustomers=webTestClient.get().uri("api/v1/customers").accept(MediaType.APPLICATION_JSON)
+            List<Customer> allCustomers=webTestClient.get().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
                     .exchange().expectStatus().isOk()
                     .expectBodyList(new ParameterizedTypeReference<Customer>() {})
                     .returnResult()
                     .getResponseBody();
 
-            int id= allCustomers.stream()
+        Assertions.assertNotNull(allCustomers);
+        int id= allCustomers.stream()
                 .filter(customer -> customer.getEmail().equals(email))
                 .map(Customer::getId).findFirst().orElseThrow();
 
@@ -150,7 +158,7 @@ public class CustomerIntegrationTest {
         String newName="khalid";
         CustomerUpdateRequest updateRequest= new CustomerUpdateRequest(newName,null,null);
 
-        webTestClient.put().uri("api/v1/customers/{id}",id).accept(MediaType.APPLICATION_JSON)
+        webTestClient.put().uri(CUSTOMER_URI+"/{id}",id).accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(updateRequest), CustomerUpdateRequest.class)
                 .exchange()
@@ -160,7 +168,7 @@ public class CustomerIntegrationTest {
         // get customer by id
 
 
-        Customer updatedCustomer= webTestClient.get().uri("api/v1/customers"+"/{id}", id).accept(MediaType.APPLICATION_JSON)
+        Customer updatedCustomer= webTestClient.get().uri(CUSTOMER_URI+"/{id}", id).accept(MediaType.APPLICATION_JSON)
                 .exchange().expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<Customer>() {})
                 .returnResult()

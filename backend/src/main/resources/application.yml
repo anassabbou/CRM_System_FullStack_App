@@ -24,3 +24,13 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+  test:
+    database:
+      replace: none
+  testcontainers:
+    postgresql:
+      wait-timeout: 300s
+testcontainers:
+  Ryuk:
+  containerTimeout: 300000
+
