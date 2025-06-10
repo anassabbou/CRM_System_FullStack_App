@@ -12,10 +12,10 @@ spring:
     name: SpringBootProjet
   main:
     web-application-type: servlet
-  datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+  datasource: # we can secure vars vault
+    url: jdbc:postgresql://localhost:5432/customer
+    username: anassabbou
+    password: password
   jpa:
     hibernate:
       ddl-auto: validate
