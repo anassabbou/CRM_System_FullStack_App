@@ -16,7 +16,7 @@ public class Main {
         SpringApplication.run(Main.class, args);
     }
 
-    @Bean // spring create instance of CommandLineRunner
+    @Bean
     CommandLineRunner runner(CustomerRepository customerRepository){
         return args -> {
             Faker faker=new Faker();
@@ -27,7 +27,6 @@ public class Main {
               faker.name().fullName(),
               faker.internet().emailAddress(),
               rAge, gender);
-            // Use this with DDL (hibernates)
             customerRepository.save(customer);
         };
     }
