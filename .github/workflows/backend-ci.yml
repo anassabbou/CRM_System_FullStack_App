@@ -39,4 +39,4 @@ jobs:
           java-version: '17'
           cache: 'maven'
       - name: Build and run Unit/integration Tests with Maven
-        run: mvn -ntp -B verify # Download all deps & plugins
+        run: mvn -ntp -B verify # Download all deps & plugins needed
