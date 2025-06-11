@@ -9,16 +9,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      DB_URL: jdbc:postgresql://localhost:5332/customer
-      DB_USERNAME: anassabbou
-      DB_PASSWORD: password
     services:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: ${{ env.DB_USERNAME }}
-          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+          POSTGRES_USER: anassabbou
+          POSTGRES_PASSWORD: password
           POSTGRES_DB: customer
         ports:
           - 5332:5432
@@ -32,7 +28,6 @@ jobs:
         working-directory: ./backend
     steps: # github.com/marketplace
       - uses: actions/checkout@v4
-        name: Clone Repo to Github Action
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
