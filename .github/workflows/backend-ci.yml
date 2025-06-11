@@ -9,12 +9,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DB_URL: jdbc:postgresql://localhost:5332/customer
+      DB_USERNAME: anassabbou
+      DB_PASSWORD: password
     services:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: anassabbou
-          POSTGRES_PASSWORD: password
+          POSTGRES_USER: ${{ env.DB_USERNAME }}
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
           POSTGRES_DB: customer
         ports:
           - 5332:5432
@@ -32,7 +36,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
           cache: 'maven'
-      - name: Build and run Unit/integration Testes with maven
-        run: mvn -ntp -B verify # Download all debps & plugins
+      - name: Build and run Unit/integration Tests with Maven
+        run: mvn -ntp -B verify # Download all deps & plugins

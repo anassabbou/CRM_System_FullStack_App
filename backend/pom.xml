@@ -99,6 +99,7 @@
                         </goals>
 
                     <configuration>
+                        <jmxPort>0</jmxPort>
                         <arguments>
                             <argument>--server.port=${tomcat.http.port}</argument>
                         </arguments>
